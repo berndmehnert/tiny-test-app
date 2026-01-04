@@ -12,7 +12,7 @@ func main() {
 	r.Use(gin.Recovery())
 
 	r.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello from me, Render + Gin!")
+		c.String(http.StatusOK, "Hello from dad, Render + Gin!")
 	})
 
 	r.GET("/health", func(c *gin.Context) {
