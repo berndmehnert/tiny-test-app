@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"net/http"
 	"os"
 
@@ -11,15 +12,17 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
+	r.SetFuncMap(template.FuncMap{})
+	r.LoadHTMLGlob("templates/*.tmpl")
+
 	r.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello from dad, Render + Gin!")
+		c.HTML(http.StatusOK, "page.tmpl", gin.H{
+			"Title":        "Tiny Site",
+			"ProblemTitle": "A cool problem for the big O. M. from his dad concerning muffins!",
+			"Message":      "A school bake sale sells muffins. At the start there are 120 muffins. During the morning they sell 40% of the muffins. After a break they sell another 25% of the muffins that were left after the morning. How many muffins remain at the end of the day?",
+		})
 	})
 
-	r.GET("/health", func(c *gin.Context) {
-		c.String(http.StatusOK, "OK")
-	})
-
-	// port from Render
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

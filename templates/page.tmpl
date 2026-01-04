@@ -1,0 +1,8 @@
+{{ define "content" }}
+<h1>{{ .ProblemTitle }}</h1>
+<p>{{ .Message }}</p>
+{{ end }}
+
+{{ define "page.tmpl" }}
+{{ template "base" . }}
+{{ end }}
