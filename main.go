@@ -6,6 +6,10 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 func main() {
@@ -15,11 +19,16 @@ func main() {
 	r.SetFuncMap(template.FuncMap{})
 	r.LoadHTMLGlob("templates/*.tmpl")
 
+	markdown := []byte("An astronaut on Mars harvests **100 kg** of Martian potatoes.  \nThese potatoes are composed of **99% water** and 1% solid potato matter.  \nThe astronaut leaves the potatoes outside in the dry Martian sun for a few hours. During this time, some of the water evaporates.  \n  \nWhen she returns, she measures the water content again and finds that the potatoes are now **98% water**.\n**What is the new total weight of the potatoes?**")
+	htmlContent := mdToHTML(markdown)
+	policy := bluemonday.UGCPolicy()
+	clean := policy.Sanitize(string(htmlContent))
+
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "page.tmpl", gin.H{
 			"Title":        "Tiny Site",
-			"ProblemTitle": "A cool problem for the big O. M. from his dad concerning muffins!",
-			"Message":      "A school bake sale sells muffins. At the start there are 120 muffins. During the morning they sell 40% of the muffins. After a break they sell another 25% of the muffins that were left after the morning. How many muffins remain at the end of the day?",
+			"ProblemTitle": "Another cool problem for the great O. M. from his dad concerning Martian potatoes!",
+			"Message":      template.HTML(clean),
 		})
 	})
 
@@ -28,4 +37,16 @@ func main() {
 		port = "8080"
 	}
 	_ = r.Run(":" + port)
+}
+
+func mdToHTML(md []byte) []byte {
+	extensions := parser.CommonExtensions
+	p := parser.NewWithExtensions(extensions)
+	doc := p.Parse(md)
+
+	htmlFlags := html.CommonFlags
+	opts := html.RendererOptions{Flags: htmlFlags}
+	renderer := html.NewRenderer(opts)
+
+	return markdown.Render(doc, renderer)
 }
